@@ -1,0 +1,1 @@
+This is a mobileconfig file, so it installs a webclip on your iOS device. Learn more about webclips at https://copilot.microsoft.com/shares/pages/YXYbnFVmKujbLsUNHf86L
