@@ -1,1 +1,2 @@
-*.mobileconfig application/x-apple-aspen-config
+*.mobileconfig binary
+
