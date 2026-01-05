@@ -48,3 +48,21 @@
 
             <key>Label</key>
             <string>BlueLive Search</string>
+
+            <key>URL</key>
+            <string>https://v47.livecodes.io/?x=id/6az6yx3fx83&amp;loading=click&amp;mode=result&amp;readonly=true</string>
+
+            <key>IsRemovable</key>
+            <true/>
+
+            <key>FullScreen</key>
+            <true/>
+
+            <key>Precomposed</key>
+            <true/>
+
+        </dict>
+    </array>
+
+</dict>
+</plist>
