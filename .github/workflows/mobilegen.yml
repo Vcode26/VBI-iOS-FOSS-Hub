@@ -1,0 +1,30 @@
+name: MobileConfig Generator
+
+on:
+  repository_dispatch:
+    types: [generate_mobileconfig]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Write XML to file
+        run: |
+          echo "${{ github.event.client_payload.xml }}" > raw.xml
+
+      - name: Encode and create .mobileconfig
+        run: |
+          base64 raw.xml > encoded.txt
+          base64 --decode encoded.txt > "${{ github.event.client_payload.filename }}.mobileconfig"
+
+      - name: Commit file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add *.mobileconfig
+          git commit -m "Add mobileconfig: ${{ github.event.client_payload.filename }}"
+          git push
