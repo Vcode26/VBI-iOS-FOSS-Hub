@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>WebClip Generator</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, textarea, button { width: 100%; padding: 10px; margin-top: 5px; }
+    button { margin-top: 20px; }
+    pre { background: #f4f4f4; padding: 15px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+
+  <h1>Make Your Own App</h1>
+
+  <label>Name</label>
+  <input id="name" type="text" placeholder="Viaan">
+
+  <label>URL</label>
+  <input id="url" type="text" placeholder="https://example.com">
+
+  <label>Icon (Upload File)</label>
+  <input id="iconFile" type="file" accept="image/*">
+
+  <label>Icon (Base64 Output)</label>
+  <textarea id="icon" placeholder="Base64 will appear here automatically"></textarea>
+
+  <label>Fullscreen</label>
+  <input id="fullscreen" type="checkbox">
+
+  <label>Filename</label>
+  <input id="filename" type="text" placeholder="com.example.webclip">
+
+  <button onclick="generate()">Generate Mobileconfig JSON</button>
+  <button onclick="downloadConfig()">Download .mobileconfig</button>
+  <button onclick="sendToWorker()">&lt;publish to VBI iOS FOSS Hub&gt;</button>
+
+  <h2>Output</h2>
+  <pre id="output"></pre>
+
+<script>
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById("iconFile").addEventListener("change", async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const base64 = await fileToBase64(file);
+  document.getElementById("icon").value = base64;
+});
+
+function generateUUID() {
+  return crypto.randomUUID();
+}
+
+function buildPayload() {
+  const name = document.getElementById("name").value.trim();
+  const url = document.getElementById("url").value.trim();
+  const icon = document.getElementById("icon").value.trim();
+  const fullscreen = document.getElementById("fullscreen").checked;
+  const filename = document.getElementById("filename").value.trim();
+
+  const uuid1 = generateUUID();
+  const uuid2 = generateUUID();
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>FullScreen</key>
+      ${fullscreen ? "<true/>" : "<false/>"}
+      <key>Icon</key>
+      <data>${icon}</data>
+      <key>Label</key>
+      <string>${name}</string>
+      <key>PayloadIdentifier</key>
+      <string>com.webclip.${name}.${uuid1}</string>
+      <key>PayloadType</key>
+      <string>com.apple.webClip.managed</string>
+      <key>PayloadUUID</key>
+      <string>${uuid1}</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>URL</key>
+      <string>${url}</string>
+    </dict>
+  </array>
+
+  <key>PayloadDisplayName</key>
+  <string>${name} WebClip</string>
+  <key>PayloadIdentifier</key>
+  <string>com.webclip.${name}.profile</string>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>${uuid2}</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>`;
+
+  return { xml, filename };
+}
+
+function generate() {
+  const payload = buildPayload();
+  document.getElementById("output").textContent = JSON.stringify(payload, null, 2);
+}
+
+function downloadConfig() {
+  const { xml, filename } = buildPayload();
+
+  const blob = new Blob([xml], { type: "application/x-apple-aspen-config" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename + ".mobileconfig";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+async function sendToWorker() {
+  const payload = buildPayload();
+
+  const workerUrl = "https://flat-rice-e9fa.vcode26.workers.dev/"; // <-- replace this
+
+  const res = await fetch(workerUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const text = await res.text();
+  alert("Worker response: " + text);
+}
+</script>
+
+</body>
+</html>
