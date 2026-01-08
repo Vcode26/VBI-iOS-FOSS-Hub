@@ -10,21 +10,12 @@
     button { margin-top: 20px; }
     pre { background: #f4f4f4; padding: 15px; white-space: pre-wrap; }
 
-    #successBanner {
-      display: none;
-      background: #28a745;
-      color: white;
-      padding: 15px;
-      border-radius: 8px;
+    #pagesLink {
       margin-top: 20px;
-      font-weight: bold;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-    #successBanner.show {
-      display: block;
-      opacity: 1;
+      padding: 15px;
+      background: #e8f5e9;
+      border-left: 4px solid #2e7d32;
+      display: none;
     }
   </style>
 </head>
@@ -32,8 +23,10 @@
 
   <h1>WebClip Generator</h1>
 
+  <p>This tool generates an iOS <code>.mobileconfig</code> WebClip profile. After downloading, upload it to your GitHub repo and it will be available at your Cloudflare Pages URL.</p>
+
   <label>Name</label>
-  <input id="name" type="text" placeholder="Viaan">
+  <input id="name" type="text" placeholder="My App">
 
   <label>URL</label>
   <input id="url" type="text" placeholder="https://example.com">
@@ -47,22 +40,19 @@
   <label>Fullscreen</label>
   <input id="fullscreen" type="checkbox">
 
-  <label>Filename</label>
+  <label>Filename (no spaces)</label>
   <input id="filename" type="text" placeholder="com.example.webclip">
 
-  <button onclick="generate()">Generate Mobileconfig JSON</button>
+  <button onclick="generate()">Generate JSON Preview</button>
   <button onclick="downloadConfig()">Download .mobileconfig</button>
-  <button onclick="publish()"> &lt;publish to VBI iOS FOSS Hub&gt; </button>
+  <button onclick="showPagesLink()">Show Cloudflare Pages Link</button>
 
-  <div id="successBanner">✓ Successfully uploaded to GitHub</div>
+  <div id="pagesLink"></div>
 
   <h2>Output</h2>
   <pre id="output"></pre>
 
 <script>
-/* ------------------------------
-   FILE → BASE64
---------------------------------*/
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -83,16 +73,10 @@ document.getElementById("iconFile").addEventListener("change", async (event) => 
   document.getElementById("icon").value = base64;
 });
 
-/* ------------------------------
-   UUID GENERATOR
---------------------------------*/
 function generateUUID() {
   return crypto.randomUUID();
 }
 
-/* ------------------------------
-   BUILD PAYLOAD (XML + filename)
---------------------------------*/
 function buildPayload() {
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
@@ -128,7 +112,6 @@ function buildPayload() {
       <string>${url}</string>
     </dict>
   </array>
-
   <key>PayloadDisplayName</key>
   <string>${name} WebClip</string>
   <key>PayloadIdentifier</key>
@@ -145,17 +128,11 @@ function buildPayload() {
   return { xml, filename };
 }
 
-/* ------------------------------
-   GENERATE JSON PREVIEW
---------------------------------*/
 function generate() {
   const payload = buildPayload();
   document.getElementById("output").textContent = JSON.stringify(payload, null, 2);
 }
 
-/* ------------------------------
-   DOWNLOAD .mobileconfig
---------------------------------*/
 function downloadConfig() {
   const { xml, filename } = buildPayload();
 
@@ -170,49 +147,22 @@ function downloadConfig() {
   URL.revokeObjectURL(url);
 }
 
-/* ------------------------------
-   DIRECT UPLOAD TO GITHUB
---------------------------------*/
-async function publish() {
-  const { xml, filename } = buildPayload();
-
-  const token = "YOUR_FINE_GRAINED_TOKEN_HERE";
-
-  // GitHub requires Base64 for file uploads
-  const contentBase64 = btoa(unescape(encodeURIComponent(xml)));
-
-  const path = `${filename}.mobileconfig`;
-
-  const res = await fetch(
-    `https://api.github.com/repos/Vcode26/VBI-iOS-FOSS-Hub/contents/${path}`,
-    {
-      method: "PUT",
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `Add mobileconfig: ${filename}`,
-        content: contentBase64
-      })
-    }
-  );
-
-  const data = await res.json();
-
-  if (res.status === 201 || res.status === 200) {
-    const banner = document.getElementById("successBanner");
-    banner.style.display = "block";
-    banner.classList.add("show");
-
-    setTimeout(() => {
-      banner.classList.remove("show");
-      setTimeout(() => banner.style.display = "none", 400);
-    }, 4000);
-  } else {
-    alert("GitHub error: " + res.status + " — " + JSON.stringify(data));
+function showPagesLink() {
+  const filename = document.getElementById("filename").value.trim();
+  if (!filename) {
+    alert("Enter a filename first");
+    return;
   }
+
+  const link = `https://vbifoss.pages.dev/${filename}.mobileconfig`;
+
+  const div = document.getElementById("pagesLink");
+  div.style.display = "block";
+  div.innerHTML = `
+    <strong>Your Cloudflare Pages link:</strong><br>
+    <a href="${link}" target="_blank">${link}</a><br><br>
+    <em>Upload the downloaded .mobileconfig file to your GitHub repo at the root level for this link to work.</em>
+  `;
 }
 </script>
 
