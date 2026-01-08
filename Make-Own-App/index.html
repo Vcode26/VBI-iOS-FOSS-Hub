@@ -25,7 +25,7 @@
   ✓ Successfully published to GitHub
 </div>
 
-  <h1>Make Your Own App</h1>
+  <h1>WebClip Generator</h1>
 
   <label>Name</label>
   <input id="name" type="text" placeholder="Viaan">
@@ -47,12 +47,15 @@
 
   <button onclick="generate()">Generate Mobileconfig JSON</button>
   <button onclick="downloadConfig()">Download .mobileconfig</button>
-  <button onclick="sendToWorker()">&lt;publish to VBI iOS FOSS Hub&gt;</button>
+  <button onclick="publish()"> &lt;publish to VBI iOS FOSS Hub&gt; </button>
 
   <h2>Output</h2>
   <pre id="output"></pre>
 
 <script>
+/* ------------------------------
+   FILE → BASE64
+--------------------------------*/
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -73,10 +76,16 @@ document.getElementById("iconFile").addEventListener("change", async (event) => 
   document.getElementById("icon").value = base64;
 });
 
+/* ------------------------------
+   UUID GENERATOR
+--------------------------------*/
 function generateUUID() {
   return crypto.randomUUID();
 }
 
+/* ------------------------------
+   BUILD PAYLOAD (XML + filename)
+--------------------------------*/
 function buildPayload() {
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
@@ -129,11 +138,17 @@ function buildPayload() {
   return { xml, filename };
 }
 
+/* ------------------------------
+   GENERATE JSON PREVIEW
+--------------------------------*/
 function generate() {
   const payload = buildPayload();
   document.getElementById("output").textContent = JSON.stringify(payload, null, 2);
 }
 
+/* ------------------------------
+   DOWNLOAD .mobileconfig
+--------------------------------*/
 function downloadConfig() {
   const { xml, filename } = buildPayload();
 
@@ -148,20 +163,37 @@ function downloadConfig() {
   URL.revokeObjectURL(url);
 }
 
-async function sendToWorker() {
-  const payload = buildPayload();
+/* ------------------------------
+   PUBLISH DIRECTLY TO GITHUB
+--------------------------------*/
+async function publish() {
+  const { xml, filename } = buildPayload();
 
-  const workerUrl = "https://flat-rice-e9fa.vcode26.workers.dev/"; // <-- replace this
+  // IMPORTANT: Replace with your fine-grained GitHub token
+  const token = "YOUR_FINE_GRAINED_TOKEN_HERE";
 
-  const res = await fetch(workerUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  const res = await fetch(
+    "https://api.github.com/repos/vcode26/VBI-iOS-FOSS-Hub/dispatches",
+    {
+      method: "POST",
+      headers: {
+        "Accept": "application/vnd.github+json",
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        event_type: "generate_mobileconfig",
+        client_payload: {
+          xml,
+          filename
+        }
+      })
+    }
+  );
 
   const text = await res.text();
-  alert("Worker response: " + text);
-  }
+  alert("GitHub response: " + res.status + " — " + text);
+}
 </script>
 
 </body>
