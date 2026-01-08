@@ -12,19 +12,32 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Write XML to file
+      - name: Debug payload
         run: |
-          echo "${{ github.event.client_payload.xml }}" > raw.xml
+          echo "Received filename: ${{ github.event.client_payload.filename }}"
+          echo "Received XML length: $(echo "${{ github.event.client_payload.xml }}" | wc -c)"
+          ls -al
 
-      - name: Encode and create .mobileconfig
+      - name: Prepare filename
+        id: prep
         run: |
-          base64 raw.xml > encoded.txt
-          base64 --decode encoded.txt > "${{ github.event.client_payload.filename }}.mobileconfig"
+          FILENAME="${{ github.event.client_payload.filename }}"
+          if [ -z "$FILENAME" ]; then
+            echo "No filename provided, using default"
+            FILENAME="generated"
+          fi
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+
+      - name: Write .mobileconfig file
+        run: |
+          echo "${{ github.event.client_payload.xml }}" > "${{ steps.prep.outputs.filename }}.mobileconfig"
+          echo "Created file:"
+          ls -al
 
       - name: Commit file
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add *.mobileconfig
-          git commit -m "Add mobileconfig: ${{ github.event.client_payload.filename }}"
+          git commit -m "Add mobileconfig: ${{ steps.prep.outputs.filename }}" || echo "No changes to commit"
           git push
