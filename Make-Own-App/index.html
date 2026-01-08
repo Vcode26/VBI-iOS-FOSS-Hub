@@ -9,21 +9,26 @@
     input, textarea, button { width: 100%; padding: 10px; margin-top: 5px; }
     button { margin-top: 20px; }
     pre { background: #f4f4f4; padding: 15px; white-space: pre-wrap; }
+
+    #successBanner {
+      display: none;
+      background: #28a745;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #successBanner.show {
+      display: block;
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
-<div id="successBanner" style="
-  display:none;
-  background:#28a745;
-  color:white;
-  padding:15px;
-  border-radius:8px;
-  margin-top:20px;
-  font-weight:bold;
-  text-align:center;
-">
-  ✓ Successfully published to GitHub
-</div>
 
   <h1>WebClip Generator</h1>
 
@@ -48,6 +53,8 @@
   <button onclick="generate()">Generate Mobileconfig JSON</button>
   <button onclick="downloadConfig()">Download .mobileconfig</button>
   <button onclick="publish()"> &lt;publish to VBI iOS FOSS Hub&gt; </button>
+
+  <div id="successBanner">✓ Successfully uploaded to GitHub</div>
 
   <h2>Output</h2>
   <pre id="output"></pre>
@@ -164,35 +171,48 @@ function downloadConfig() {
 }
 
 /* ------------------------------
-   PUBLISH DIRECTLY TO GITHUB
+   DIRECT UPLOAD TO GITHUB
 --------------------------------*/
 async function publish() {
   const { xml, filename } = buildPayload();
 
-  // IMPORTANT: Replace with your fine-grained GitHub token
   const token = "YOUR_FINE_GRAINED_TOKEN_HERE";
 
+  // GitHub requires Base64 for file uploads
+  const contentBase64 = btoa(unescape(encodeURIComponent(xml)));
+
+  const path = `${filename}.mobileconfig`;
+
   const res = await fetch(
-    "https://api.github.com/repos/vcode26/VBI-iOS-FOSS-Hub/dispatches",
+    `https://api.github.com/repos/Vcode26/VBI-iOS-FOSS-Hub/contents/${path}`,
     {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Accept": "application/vnd.github+json",
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        event_type: "generate_mobileconfig",
-        client_payload: {
-          xml,
-          filename
-        }
+        message: `Add mobileconfig: ${filename}`,
+        content: contentBase64
       })
     }
   );
 
-  const text = await res.text();
-  alert("GitHub response: " + res.status + " — " + text);
+  const data = await res.json();
+
+  if (res.status === 201 || res.status === 200) {
+    const banner = document.getElementById("successBanner");
+    banner.style.display = "block";
+    banner.classList.add("show");
+
+    setTimeout(() => {
+      banner.classList.remove("show");
+      setTimeout(() => banner.style.display = "none", 400);
+    }, 4000);
+  } else {
+    alert("GitHub error: " + res.status + " — " + JSON.stringify(data));
+  }
 }
 </script>
 
