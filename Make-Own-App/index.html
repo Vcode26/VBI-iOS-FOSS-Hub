@@ -1,68 +1,177 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>WebClip Generator</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    input, textarea, button { width: 100%; padding: 10px; margin-top: 5px; }
-    button { margin-top: 20px; }
-    pre { background: #f4f4f4; padding: 15px; white-space: pre-wrap; }
+  <title>WebClip Generator — VBI FOSS Hub</title>
+  <link rel="icon" href="assets/VBI iOS FOSS Hub Favicon.png" type="image/png">
 
-    #successBanner {
-      display: none;
-      background: #28a745;
-      color: white;
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, sans-serif;
+      background: #0d0d0d;
+      color: #e6e6e6;
+      text-align: center;
+    }
+
+    header {
+      padding: 30px 0;
+      background: #111;
+      border-bottom: 1px solid #222;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2.4rem;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    nav {
+      margin-top: 10px;
+      font-size: 1.1rem;
+    }
+
+    nav a {
+      color: #4da3ff;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .card {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px auto;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #e6e6e6;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #e6e6e6;
+    }
+
+    button {
+      background: #4da3ff;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background: #6bb6ff;
+    }
+
+    pre {
+      background: #1a1a1a;
       padding: 15px;
       border-radius: 8px;
-      margin-top: 20px;
-      font-weight: bold;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.4s ease;
+      border: 1px solid #333;
+      white-space: pre-wrap;
+      color: #bfbfbf;
     }
-    #successBanner.show {
-      display: block;
-      opacity: 1;
+
+    #pagesLink {
+      display: none;
+      background: #e8f5e9;
+      color: #1b5e20;
+      padding: 15px;
+      border-left: 4px solid #2e7d32;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+
+    #instructions {
+      background: #0f1a26;
+      padding: 15px;
+      border-left: 4px solid #4da3ff;
+      margin-bottom: 25px;
+      border-radius: 8px;
+      color: #cfe8ff;
+    }
+
+    a {
+      color: #4da3ff;
     }
   </style>
 </head>
+
 <body>
 
-  <h1>WebClip Generator</h1>
+  <header>
+    <h1>VBI FOSS Hub</h1>
+    <nav>
+      <a href="../index.html">Home</a> |
+      <a href="https://vbifoss.pages.dev/Devconnect">Devconnect</a>
+    </nav>
+  </header>
 
-  <label>Name</label>
-  <input id="name" type="text" placeholder="Viaan">
+  <div class="card" id="instructions">
+    <strong>How to use the WebClip Generator:</strong><br><br>
+    1. Fill out the form below.<br>
+    2. Click <strong>Download .mobileconfig</strong> to save the file.<br>
+    3. Upload the file to your GitHub repo:<br>
+    <a href="https://github.com/Vcode26/VBI-iOS-FOSS-Hub/upload/main" target="_blank">
+      Upload to VBI-iOS-FOSS-Hub
+    </a><br><br>
+    4. After upload, your install link will be:<br>
+    <code>https://vbifoss.pages.dev/&lt;filename&gt;.mobileconfig</code><br><br>
+    5. Use the button below to auto-generate that link.
+  </div>
 
-  <label>URL</label>
-  <input id="url" type="text" placeholder="https://example.com">
+  <div class="card">
+    <label>Name</label>
+    <input id="name" type="text" placeholder="Viaan">
 
-  <label>Icon (Upload File)</label>
-  <input id="iconFile" type="file" accept="image/*">
+    <label>URL</label>
+    <input id="url" type="text" placeholder="https://example.com">
 
-  <label>Icon (Base64 Output)</label>
-  <textarea id="icon" placeholder="Base64 will appear here automatically"></textarea>
+    <label>Icon (Upload File)</label>
+    <input id="iconFile" type="file" accept="image/*">
 
-  <label>Fullscreen</label>
-  <input id="fullscreen" type="checkbox">
+    <label>Icon (Base64 Output)</label>
+    <textarea id="icon" placeholder="Base64 will appear here automatically"></textarea>
 
-  <label>Filename</label>
-  <input id="filename" type="text" placeholder="com.example.webclip">
+    <label>Fullscreen</label>
+    <input id="fullscreen" type="checkbox">
 
-  <button onclick="generate()">Generate Mobileconfig JSON</button>
-  <button onclick="downloadConfig()">Download .mobileconfig</button>
-  <button onclick="publish()"> &lt;publish to VBI iOS FOSS Hub&gt; </button>
+    <label>Filename</label>
+    <input id="filename" type="text" placeholder="com.example.webclip">
 
-  <div id="successBanner">✓ Successfully uploaded to GitHub</div>
+    <button onclick="generate()">Generate Mobileconfig JSON</button>
+    <button onclick="downloadConfig()">Download .mobileconfig</button>
+    <button onclick="showPagesLink()">Generate Cloudflare Pages Link</button>
 
-  <h2>Output</h2>
-  <pre id="output"></pre>
+    <div id="pagesLink"></div>
+
+    <h2>Output</h2>
+    <pre id="output"></pre>
+  </div>
 
 <script>
-/* ------------------------------
-   FILE → BASE64
---------------------------------*/
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -83,16 +192,10 @@ document.getElementById("iconFile").addEventListener("change", async (event) => 
   document.getElementById("icon").value = base64;
 });
 
-/* ------------------------------
-   UUID GENERATOR
---------------------------------*/
 function generateUUID() {
   return crypto.randomUUID();
 }
 
-/* ------------------------------
-   BUILD PAYLOAD (XML + filename)
---------------------------------*/
 function buildPayload() {
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
@@ -145,17 +248,11 @@ function buildPayload() {
   return { xml, filename };
 }
 
-/* ------------------------------
-   GENERATE JSON PREVIEW
---------------------------------*/
 function generate() {
   const payload = buildPayload();
   document.getElementById("output").textContent = JSON.stringify(payload, null, 2);
 }
 
-/* ------------------------------
-   DOWNLOAD .mobileconfig
---------------------------------*/
 function downloadConfig() {
   const { xml, filename } = buildPayload();
 
@@ -170,49 +267,22 @@ function downloadConfig() {
   URL.revokeObjectURL(url);
 }
 
-/* ------------------------------
-   DIRECT UPLOAD TO GITHUB
---------------------------------*/
-async function publish() {
-  const { xml, filename } = buildPayload();
-
-  const token = "YOUR_FINE_GRAINED_TOKEN_HERE";
-
-  // GitHub requires Base64 for file uploads
-  const contentBase64 = btoa(unescape(encodeURIComponent(xml)));
-
-  const path = `${filename}.mobileconfig`;
-
-  const res = await fetch(
-    `https://api.github.com/repos/Vcode26/VBI-iOS-FOSS-Hub/contents/${path}`,
-    {
-      method: "PUT",
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `Add mobileconfig: ${filename}`,
-        content: contentBase64
-      })
-    }
-  );
-
-  const data = await res.json();
-
-  if (res.status === 201 || res.status === 200) {
-    const banner = document.getElementById("successBanner");
-    banner.style.display = "block";
-    banner.classList.add("show");
-
-    setTimeout(() => {
-      banner.classList.remove("show");
-      setTimeout(() => banner.style.display = "none", 400);
-    }, 4000);
-  } else {
-    alert("GitHub error: " + res.status + " — " + JSON.stringify(data));
+function showPagesLink() {
+  const filename = document.getElementById("filename").value.trim();
+  if (!filename) {
+    alert("Enter a filename first");
+    return;
   }
+
+  const link = `https://vbifoss.pages.dev/${filename}.mobileconfig`;
+
+  const div = document.getElementById("pagesLink");
+  div.style.display = "block";
+  div.innerHTML = `
+    <strong>Your Cloudflare Pages link:</strong><br>
+    <a href="${link}" target="_blank">${link}</a><br><br>
+    <em>Upload the downloaded .mobileconfig file to your GitHub repo for this link to work.</em>
+  `;
 }
 </script>
 
