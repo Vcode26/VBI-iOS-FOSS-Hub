@@ -6,93 +6,11 @@
   <link rel="icon" href="assets/VBI iOS FOSS Hub Favicon.png" type="image/png">
 
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, sans-serif;
-      background: #0d0d0d;
-      color: #e6e6e6;
-      text-align: center;
-    }
-
-    header {
-      padding: 30px 0;
-      background: #111;
-      border-bottom: 1px solid #222;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 2.4rem;
-      letter-spacing: 1px;
-      font-weight: 700;
-    }
-
-    nav {
-      margin-top: 10px;
-      font-size: 1.1rem;
-    }
-
-    nav a {
-      color: #4da3ff;
-      text-decoration: none;
-      margin: 0 10px;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    .card {
-      background: #141414;
-      border: 1px solid #222;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 25px auto;
-      width: 90%;
-      max-width: 600px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-      color: #e6e6e6;
-    }
-
-    input, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      background: #1a1a1a;
-      color: #e6e6e6;
-    }
-
-    button {
-      background: #4da3ff;
-      border: none;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-
-    button:hover {
-      background: #6bb6ff;
-    }
-
-    pre {
-      background: #1a1a1a;
-      padding: 15px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      white-space: pre-wrap;
-      color: #bfbfbf;
-    }
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, textarea, button { width: 100%; padding: 10px; margin-top: 5px; }
+    button { margin-top: 20px; }
+    pre { background: #f4f4f4; padding: 15px; white-space: pre-wrap; }
 
     #pagesLink {
       display: none;
@@ -102,74 +20,41 @@
       border-left: 4px solid #2e7d32;
       margin-top: 20px;
       border-radius: 8px;
-    }
-
-    #instructions {
-      background: #0f1a26;
-      padding: 15px;
-      border-left: 4px solid #4da3ff;
-      margin-bottom: 25px;
-      border-radius: 8px;
-      color: #cfe8ff;
-    }
-
-    a {
-      color: #4da3ff;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
 
-  <header>
-    <h1>VBI FOSS Hub</h1>
-    <nav>
-      <a href="../index.html">Home</a> |
-      <a href="https://vbifoss.pages.dev/Devconnect">Devconnect</a>
-    </nav>
-  </header>
+  <h1>WebClip Generator</h1>
 
-  <div class="card" id="instructions">
-    <strong>How to use the WebClip Generator:</strong><br><br>
-    1. Fill out the form below.<br>
-    2. Click <strong>Download .mobileconfig</strong> to save the file.<br>
-    3. Upload the file to your GitHub repo:<br>
-    <a href="https://github.com/Vcode26/VBI-iOS-FOSS-Hub/upload/main" target="_blank">
-      Upload to VBI-iOS-FOSS-Hub
-    </a><br><br>
-    4. After upload, your install link will be:<br>
-    <code>https://vbifoss.pages.dev/&lt;filename&gt;.mobileconfig</code><br><br>
-    5. Use the button below to auto-generate that link.
-  </div>
+  <label>Name</label>
+  <input id="name" type="text" placeholder="Viaan">
 
-  <div class="card">
-    <label>Name</label>
-    <input id="name" type="text" placeholder="Viaan">
+  <label>URL</label>
+  <input id="url" type="text" placeholder="https://example.com">
 
-    <label>URL</label>
-    <input id="url" type="text" placeholder="https://example.com">
+  <label>Icon (Upload File)</label>
+  <input id="iconFile" type="file" accept="image/*">
 
-    <label>Icon (Upload File)</label>
-    <input id="iconFile" type="file" accept="image/*">
+  <label>Icon (Base64 Output)</label>
+  <textarea id="icon" placeholder="Base64 will appear here automatically"></textarea>
 
-    <label>Icon (Base64 Output)</label>
-    <textarea id="icon" placeholder="Base64 will appear here automatically"></textarea>
+  <label>Fullscreen</label>
+  <input id="fullscreen" type="checkbox">
 
-    <label>Fullscreen</label>
-    <input id="fullscreen" type="checkbox">
+  <label>Filename</label>
+  <input id="filename" type="text" placeholder="com.example.webclip">
 
-    <label>Filename</label>
-    <input id="filename" type="text" placeholder="com.example.webclip">
+  <button onclick="generate()">Generate Mobileconfig JSON</button>
+  <button onclick="downloadConfig()">Download .mobileconfig</button>
+  <button onclick="showPagesLink()">Generate Cloudflare Pages Link</button>
 
-    <button onclick="generate()">Generate Mobileconfig JSON</button>
-    <button onclick="downloadConfig()">Download .mobileconfig</button>
-    <button onclick="showPagesLink()">Generate Cloudflare Pages Link</button>
+  <div id="pagesLink"></div>
 
-    <div id="pagesLink"></div>
-
-    <h2>Output</h2>
-    <pre id="output"></pre>
-  </div>
+  <h2>Output</h2>
+  <pre id="output"></pre>
 
 <script>
 function fileToBase64(file) {
@@ -231,7 +116,6 @@ function buildPayload() {
       <string>${url}</string>
     </dict>
   </array>
-
   <key>PayloadDisplayName</key>
   <string>${name} WebClip</string>
   <key>PayloadIdentifier</key>
