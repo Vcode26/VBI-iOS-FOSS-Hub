@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Signup / Login</title>
+  <style>
+    body { font-family: sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; }
+    .box { text-align:center; }
+    input { display:block; margin:6px auto; padding:6px; text-align:center; }
+    button { margin:6px; padding:8px 16px; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2 id="modeTitle">Sign Up</h2>
+
+  <div id="signupForm">
+    <input id="suUser" placeholder="Username">
+    <input id="suPin" type="password" placeholder="4–6 digit PIN" minlength="4" maxlength="6">
+    <button onclick="signup()">Create Account</button>
+  </div>
+
+  <div id="loginForm" style="display:none;">
+    <input id="liPin" type="password" placeholder="Enter PIN">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <button onclick="toggleMode()">Switch to Login</button>
+  <p id="msg" style="color:red;"></p>
+</div>
+
+<script>
+  const users = []; // in-memory only
+
+  function toggleMode() {
+    const su = document.getElementById("signupForm");
+    const li = document.getElementById("loginForm");
+    const title = document.getElementById("modeTitle");
+    const msg = document.getElementById("msg");
+    msg.textContent = "";
+
+    if (su.style.display !== "none") {
+      su.style.display = "none";
+      li.style.display = "block";
+      title.textContent = "Login";
+    } else {
+      su.style.display = "block";
+      li.style.display = "none";
+      title.textContent = "Sign Up";
+    }
+  }
+
+  function signup() {
+    const user = document.getElementById("suUser").value.trim();
+    const pin = document.getElementById("suPin").value.trim();
+    const msg = document.getElementById("msg");
+
+    if (!user || pin.length < 4 || pin.length > 6) {
+      msg.textContent = "Enter a username and 4–6 digit PIN.";
+      return;
+    }
+
+    users.push({ user, pin });
+    msg.style.color = "green";
+    msg.textContent = "Account created! Switch to Login.";
+  }
+
+  function login() {
+    const pin = document.getElementById("liPin").value.trim();
+    const msg = document.getElementById("msg");
+
+    if (users.some(u => u.pin === pin)) {
+      window.location.href =
+        "https://www.canva.com/design/DAG-hTdT1gY/tgvsGkCkTa7mQ75AIDFbmQ/view";
+    } else {
+      msg.style.color = "red";
+      msg.textContent = "Invalid PIN or no account (refresh clears all).";
+    }
+  }
+</script>
+</body>
+</html>
