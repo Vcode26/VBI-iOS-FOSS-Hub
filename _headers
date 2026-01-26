@@ -1,2 +1,6 @@
 /BlueLiveSearch/vsaechuj.mobileconfig
   Content-Type: application/x-apple-aspen-config
+/com.vbi.vbihomenow (1).mobileconfig
+  Content-Type: application/x-apple-aspen-config
+#Added mime type
+
