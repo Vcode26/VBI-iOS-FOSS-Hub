@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>FullScreen</key>
+      <true/>
+      <key>Icon</key>
+      <data>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</data>
+      <key>Label</key>
+      <string>RSL Learning APp</string>
+      <key>PayloadIdentifier</key>
+      <string>com.webclip.RSL Learning APp.5590153e-780d-436e-815e-686acadd0ad4</string>
+      <key>PayloadType</key>
+      <string>com.apple.webClip.managed</string>
+      <key>PayloadUUID</key>
+      <string>5590153e-780d-436e-815e-686acadd0ad4</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>URL</key>
+      <string>http://tiny.cc/rsllapp1</string>
+    </dict>
+  </array>
+  <key>PayloadDisplayName</key>
+  <string>RSL Learning APp WebClip</string>
+  <key>PayloadIdentifier</key>
+  <string>com.webclip.RSL Learning APp.profile</string>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>90bedbc7-4e78-44a1-a654-a2956b7a817d</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>
